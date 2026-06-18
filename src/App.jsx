@@ -17,7 +17,7 @@ function App() {
   const [slPrice, setSlPrice] = useState(80);
   const [targetPrice, setTargetPrice] = useState(140);
 
-  const token = localStorage.getItem("token") || localStorage.getItem("fi_token");
+  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwiZXhwIjoxNzgxODYxNjQ1fQ.gfrESHWi58imT5plxscpA90AHg0ANYXmDv7E
   const headers = { Authorization: "Bearer " + token };
   const apiUrl = window.location.hostname === "localhost" ? API : BACKEND_URL;
 
