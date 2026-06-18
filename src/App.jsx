@@ -1,5 +1,6 @@
-﻿import { useEffect, useState } from "react";
+﻿import { useEffect, useState, useRef } from "react";
 import axios from "axios";
+import { createChart } from "lightweight-charts";
 import "./App.css";
 
 const API = "http://127.0.0.1:8000/api/v1";
@@ -17,10 +18,50 @@ function App() {
   const [entryPrice, setEntryPrice] = useState(100);
   const [slPrice, setSlPrice] = useState(80);
   const [targetPrice, setTargetPrice] = useState(140);
+  const chartContainerRef = useRef(null);
 
   const token = TEST_TOKEN;
   const headers = { Authorization: "Bearer " + token };
   const apiUrl = window.location.hostname === "localhost" ? API : BACKEND_URL;
+
+  // Initialize TradingView Chart
+  useEffect(() => {
+    if (!chartContainerRef.current) return;
+    
+    try {
+      const chart = createChart(chartContainerRef.current, {
+        layout: { textColor: "#d1d5db", background: { color: "#1f2937" } },
+        width: chartContainerRef.current.clientWidth,
+        height: 400,
+      });
+
+      const candleSeries = chart.addCandlestickSeries({
+        upColor: "#26a69a",
+        downColor: "#ef5350",
+      });
+
+      // Sample OHLC data for demo
+      const sampleData = [
+        { time: "2026-06-18", open: 98, high: 105, low: 95, close: 102 },
+        { time: "2026-06-17", open: 100, high: 103, low: 97, close: 101 },
+        { time: "2026-06-16", open: 99, high: 104, low: 98, close: 100 },
+      ];
+
+      candleSeries.setData(sampleData);
+      chart.timeScale().fitContent();
+
+      const handleResize = () => {
+        if (chartContainerRef.current) {
+          chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+        }
+      };
+
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    } catch (err) {
+      console.error("Chart error:", err);
+    }
+  }, []);
 
   useEffect(() => {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
@@ -106,7 +147,7 @@ function App() {
             <div key={s} onClick={() => setSymbol(s)}>{s} - Rs {prices[s] || "—"}</div>
           ))}
         </div>
-        <div className="chart-area"><h3>Chart</h3><p>TradingView Chart Area</p></div>
+        <div className="chart-area"><h3>Chart - {symbol}</h3><div ref={chartContainerRef} style={{ width: "100%", height: "400px" }} /></div>
         <div className="order-panel"><h3>Order Panel</h3>
           <div><strong>{symbol}</strong> @ Rs {currentPrice}</div>
           <input value={symbol} onChange={e => setSymbol(e.target.value)} placeholder="Symbol" />
