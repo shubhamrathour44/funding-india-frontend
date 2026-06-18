@@ -5,6 +5,7 @@ import "./App.css";
 const API = "http://127.0.0.1:8000/api/v1";
 const BACKEND_URL = "https://funding-india-backend-production.up.railway.app/api/v1";
 const WS_URL = "wss://funding-india-backend-production.up.railway.app/ws/market";
+const TEST_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIn0.test";
 
 function App() {
   const [dashboard, setDashboard] = useState(null);
@@ -17,13 +18,18 @@ function App() {
   const [slPrice, setSlPrice] = useState(80);
   const [targetPrice, setTargetPrice] = useState(140);
 
-  const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwiZXhwIjoxNzgxODYxNjQ1fQ.gfrESHWi58imT5plxscpA90AHg0ANYXmDv7E
+  const token = TEST_TOKEN;
   const headers = { Authorization: "Bearer " + token };
   const apiUrl = window.location.hostname === "localhost" ? API : BACKEND_URL;
 
   useEffect(() => {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const wsEndpoint = window.location.hostname === "localhost" ? protocol + "//127.0.0.1:8000/ws/market" : WS_URL;
+    let wsEndpoint;
+    if (window.location.hostname === "localhost") {
+      wsEndpoint = protocol + "//127.0.0.1:8000/ws/market";
+    } else {
+      wsEndpoint = WS_URL;
+    }
     const ws = new WebSocket(wsEndpoint);
     ws.onopen = () => { console.log("Connected"); setWsConnected(true); };
     ws.onmessage = (event) => {
@@ -60,7 +66,7 @@ function App() {
       if (!token) { alert("Missing token"); return; }
       const ltp = prices[symbol] || Number(entryPrice);
       await axios.post(apiUrl + "/orders/orders/place?token=" + token, {
-        symbol, direction, lots: Number(lots), entry_price: ltp,
+        symbol: symbol, direction: direction, lots: Number(lots), entry_price: ltp,
         sl_price: Number(slPrice), target_price: Number(targetPrice),
         option_type: symbol.includes("PE") ? "PE" : "CE"
       }, { headers });
@@ -134,4 +140,3 @@ function App() {
 }
 
 export default App;
-
