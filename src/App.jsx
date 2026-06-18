@@ -24,53 +24,46 @@ function App() {
   const headers = { Authorization: "Bearer " + token };
   const apiUrl = window.location.hostname === "localhost" ? API : BACKEND_URL;
 
-  // Initialize TradingView Chart
   useEffect(() => {
     if (!chartContainerRef.current) return;
     
-    try {
-      const chart = createChart(chartContainerRef.current, {
-        layout: { textColor: "#d1d5db", background: { color: "#1f2937" } },
-        width: chartContainerRef.current.clientWidth,
-        height: 400,
-      });
+    const chart = createChart(chartContainerRef.current, {
+      width: chartContainerRef.current.clientWidth,
+      height: 400,
+      layout: { textColor: "#d1d5db", background: { color: "#1f2937" } },
+    });
 
-      const candleSeries = chart.addCandlestickSeries({
-        upColor: "#26a69a",
-        downColor: "#ef5350",
-      });
+    const candleSeries = chart.addSeries({
+      candleColor: "#26a69a",
+      wickColor: "#999",
+      borderColor: "#26a69a",
+      downColor: "#ef5350",
+      wickDownColor: "#999",
+      borderDownColor: "#ef5350",
+    });
 
-      // Sample OHLC data for demo
-      const sampleData = [
-        { time: "2026-06-18", open: 98, high: 105, low: 95, close: 102 },
-        { time: "2026-06-17", open: 100, high: 103, low: 97, close: 101 },
-        { time: "2026-06-16", open: 99, high: 104, low: 98, close: 100 },
-      ];
+    const data = [
+      { time: "2026-06-16", open: 98, high: 105, low: 95, close: 102 },
+      { time: "2026-06-17", open: 100, high: 103, low: 97, close: 101 },
+      { time: "2026-06-18", open: 99, high: 104, low: 98, close: 100 },
+    ];
 
-      candleSeries.setData(sampleData);
-      chart.timeScale().fitContent();
+    candleSeries.setData(data);
+    chart.timeScale().fitContent();
 
-      const handleResize = () => {
-        if (chartContainerRef.current) {
-          chart.applyOptions({ width: chartContainerRef.current.clientWidth });
-        }
-      };
+    const handleResize = () => {
+      if (chartContainerRef.current) {
+        chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+      }
+    };
 
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
-    } catch (err) {
-      console.error("Chart error:", err);
-    }
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    let wsEndpoint;
-    if (window.location.hostname === "localhost") {
-      wsEndpoint = protocol + "//127.0.0.1:8000/ws/market";
-    } else {
-      wsEndpoint = WS_URL;
-    }
+    let wsEndpoint = window.location.hostname === "localhost" ? protocol + "//127.0.0.1:8000/ws/market" : WS_URL;
     const ws = new WebSocket(wsEndpoint);
     ws.onopen = () => { console.log("Connected"); setWsConnected(true); };
     ws.onmessage = (event) => {
