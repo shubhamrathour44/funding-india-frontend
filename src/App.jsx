@@ -22,7 +22,7 @@ function App() {
   const token = localStorage.getItem("token") || localStorage.getItem("fi_token");
 
   const headers = {
-    Authorization: Bearer ${token}`,
+    Authorization: `Bearer ${token}`,
   };
 
   // Determine API URL based on environment
