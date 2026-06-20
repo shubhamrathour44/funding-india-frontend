@@ -1,6 +1,5 @@
-﻿import { useEffect, useState, useRef } from "react";
+﻿import { useEffect, useState } from "react";
 import axios from "axios";
-import { createChart } from "lightweight-charts";
 import "./App.css";
 
 const API = "http://127.0.0.1:8000/api/v1";
@@ -18,53 +17,10 @@ function App() {
   const [entryPrice, setEntryPrice] = useState(100);
   const [slPrice, setSlPrice] = useState(80);
   const [targetPrice, setTargetPrice] = useState(140);
-  const chartContainerRef = useRef(null);
 
   const token = TEST_TOKEN;
   const headers = { Authorization: "Bearer " + token };
   const apiUrl = window.location.hostname === "localhost" ? API : BACKEND_URL;
-
-  useEffect(() => {
-    if (!chartContainerRef.current) return;
-    
-    try {
-      const chart = createChart(chartContainerRef.current, {
-        width: chartContainerRef.current.clientWidth,
-        height: 400,
-        layout: { textColor: "#d1d5db", background: { color: "#1f2937" } },
-        timeScale: { timeVisible: true, secondsVisible: false },
-      });
-
-      const candleSeries = chart.addCandlestickSeries({
-        upColor: "#26a69a",
-        downColor: "#ef5350",
-        borderUpColor: "#26a69a",
-        borderDownColor: "#ef5350",
-        wickUpColor: "#26a69a",
-        wickDownColor: "#ef5350",
-      });
-
-      const data = [
-        { time: "2026-06-16", open: 98, high: 105, low: 95, close: 102 },
-        { time: "2026-06-17", open: 100, high: 103, low: 97, close: 101 },
-        { time: "2026-06-18", open: 99, high: 104, low: 98, close: 100 },
-      ];
-
-      candleSeries.setData(data);
-      chart.timeScale().fitContent();
-
-      const handleResize = () => {
-        if (chartContainerRef.current) {
-          chart.applyOptions({ width: chartContainerRef.current.clientWidth });
-        }
-      };
-
-      window.addEventListener("resize", handleResize);
-      return () => window.removeEventListener("resize", handleResize);
-    } catch (err) {
-      console.error("Chart error:", err);
-    }
-  }, []);
 
   useEffect(() => {
     const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
@@ -90,14 +46,14 @@ function App() {
     try {
       const res = await axios.get(apiUrl + "/challenges/dashboard", { headers });
       setDashboard(res.data);
-    } catch (err) { console.log("Dashboard error:", err); }
+    } catch (err) { console.log("Dashboard error:", err.message); }
   }
 
   async function loadPositions() {
     try {
       const res = await axios.get(apiUrl + "/orders/orders/open?token=" + token, { headers });
       setPositions(res.data.positions || []);
-    } catch (err) { console.log("Positions error:", err); }
+    } catch (err) { console.log("Positions error:", err.message); }
   }
 
   async function placeOrder(direction) {
@@ -145,7 +101,7 @@ function App() {
             <div key={s} onClick={() => setSymbol(s)}>{s} - Rs {prices[s] || "—"}</div>
           ))}
         </div>
-        <div className="chart-area"><h3>Chart - {symbol}</h3><div ref={chartContainerRef} style={{ width: "100%", height: "400px" }} /></div>
+        <div className="chart-area"><h3>Chart Coming Soon</h3><div style={{ padding: "20px", color: "#999" }}>Chart will display here tomorrow at 9:15 AM with live data</div></div>
         <div className="order-panel"><h3>Order Panel</h3>
           <div><strong>{symbol}</strong> @ Rs {currentPrice}</div>
           <input value={symbol} onChange={e => setSymbol(e.target.value)} placeholder="Symbol" />
