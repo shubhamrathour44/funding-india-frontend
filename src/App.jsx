@@ -27,38 +27,43 @@ function App() {
   useEffect(() => {
     if (!chartContainerRef.current) return;
     
-    const chart = createChart(chartContainerRef.current, {
-      width: chartContainerRef.current.clientWidth,
-      height: 400,
-      layout: { textColor: "#d1d5db", background: { color: "#1f2937" } },
-    });
+    try {
+      const chart = createChart(chartContainerRef.current, {
+        width: chartContainerRef.current.clientWidth,
+        height: 400,
+        layout: { textColor: "#d1d5db", background: { color: "#1f2937" } },
+        timeScale: { timeVisible: true, secondsVisible: false },
+      });
 
-    const candleSeries = chart.addSeries({
-      candleColor: "#26a69a",
-      wickColor: "#999",
-      borderColor: "#26a69a",
-      downColor: "#ef5350",
-      wickDownColor: "#999",
-      borderDownColor: "#ef5350",
-    });
+      const candleSeries = chart.addCandlestickSeries({
+        upColor: "#26a69a",
+        downColor: "#ef5350",
+        borderUpColor: "#26a69a",
+        borderDownColor: "#ef5350",
+        wickUpColor: "#26a69a",
+        wickDownColor: "#ef5350",
+      });
 
-    const data = [
-      { time: "2026-06-16", open: 98, high: 105, low: 95, close: 102 },
-      { time: "2026-06-17", open: 100, high: 103, low: 97, close: 101 },
-      { time: "2026-06-18", open: 99, high: 104, low: 98, close: 100 },
-    ];
+      const data = [
+        { time: "2026-06-16", open: 98, high: 105, low: 95, close: 102 },
+        { time: "2026-06-17", open: 100, high: 103, low: 97, close: 101 },
+        { time: "2026-06-18", open: 99, high: 104, low: 98, close: 100 },
+      ];
 
-    candleSeries.setData(data);
-    chart.timeScale().fitContent();
+      candleSeries.setData(data);
+      chart.timeScale().fitContent();
 
-    const handleResize = () => {
-      if (chartContainerRef.current) {
-        chart.applyOptions({ width: chartContainerRef.current.clientWidth });
-      }
-    };
+      const handleResize = () => {
+        if (chartContainerRef.current) {
+          chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+        }
+      };
 
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
+    } catch (err) {
+      console.error("Chart error:", err);
+    }
   }, []);
 
   useEffect(() => {
